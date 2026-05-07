@@ -1,0 +1,30 @@
+# Ignorar entornos virtuales
+venv/
+.venv/
+anaconda-project/
+
+# Ignorar Pesos y Checkpoints (PESADOS)
+checkpoints/
+models/
+*.bin
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+
+# Ignorar Datasets (PESADOS)
+data/raw/
+data/processed/
+datos_procesados/
+*.txt
+*.json
+
+# Ignorar resultados pesados y logs
+results/
+logs/
+*.log
+.ipynb_checkpoints/
+
+# Otros
+.DS_Store
+__pycache__/
