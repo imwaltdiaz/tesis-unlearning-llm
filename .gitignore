@@ -1,9 +1,18 @@
-# Ignorar entornos virtuales
+# --- Entornos y Cache ---
 venv/
 .venv/
-anaconda-project/
+__pycache__/
+.DS_Store
+.ipynb_checkpoints/
 
-# Ignorar Pesos y Checkpoints (PESADOS)
+# --- Datos Pesados (NO SUBIR) ---
+data/raw/
+data/processed/
+*.txt
+*.csv
+
+# --- Pesos del Modelo (MUY PESADOS) ---
+# No subimos el modelo base ni los checkpoints intermedios
 checkpoints/
 models/
 *.bin
@@ -12,19 +21,16 @@ models/
 *.ckpt
 *.safetensors
 
-# Ignorar Datasets (PESADOS)
-data/raw/
-data/processed/
-datos_procesados/
-*.txt
-*.json
+# --- RESULTADOS (¡ESTO SÍ SE SUBE!) ---
+# Queremos guardar la evidencia científica
+!results/
+!results/runs/*.json
+!results/figures/*.png
+!results/figures/*.pdf
 
-# Ignorar resultados pesados y logs
-results/
+# --- Logs de entrenamiento ---
 logs/
 *.log
-.ipynb_checkpoints/
 
-# Otros
-.DS_Store
-__pycache__/
+# --- Archivos de configuración ---
+.env

@@ -1,0 +1,62 @@
+{
+  "domain": "literatura",
+  "algorithm": "GA",
+  "n_batches": 5,
+  "history": [
+    {
+      "step": 1,
+      "metrics": {
+        "forget_rouge": {
+          "rouge1": 0.0,
+          "rougeL": 0.0
+        },
+        "fluency_perplexity": 359820343349575.94
+      },
+      "output_dir": "checkpoints\\literatura\\GA\\batches_5\\step_1"
+    },
+    {
+      "step": 2,
+      "metrics": {
+        "forget_rouge": {
+          "rouge1": 0.0,
+          "rougeL": 0.0
+        },
+        "fluency_perplexity": 1.0962497617013172e+40
+      },
+      "output_dir": "checkpoints\\literatura\\GA\\batches_5\\step_2"
+    },
+    {
+      "step": 3,
+      "metrics": {
+        "forget_rouge": {
+          "rouge1": 0.0,
+          "rougeL": 0.0
+        },
+        "fluency_perplexity": 4.331449350440521e+41
+      },
+      "output_dir": "checkpoints\\literatura\\GA\\batches_5\\step_3"
+    },
+    {
+      "step": 4,
+      "metrics": {
+        "forget_rouge": {
+          "rouge1": 0.0,
+          "rougeL": 0.0
+        },
+        "fluency_perplexity": 4.483858578459873e+41
+      },
+      "output_dir": "checkpoints\\literatura\\GA\\batches_5\\step_4"
+    },
+    {
+      "step": 5,
+      "metrics": {
+        "forget_rouge": {
+          "rouge1": 0.0,
+          "rougeL": 0.0
+        },
+        "fluency_perplexity": 5.935735003120338e+41
+      },
+      "output_dir": "checkpoints\\literatura\\GA\\batches_5\\step_5"
+    }
+  ]
+}

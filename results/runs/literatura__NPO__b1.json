@@ -1,0 +1,18 @@
+{
+  "domain": "literatura",
+  "algorithm": "NPO",
+  "n_batches": 1,
+  "history": [
+    {
+      "step": 1,
+      "metrics": {
+        "forget_rouge": {
+          "rouge1": 0.2626523347043368,
+          "rougeL": 0.19554967664168182
+        },
+        "fluency_perplexity": 18.74287369466409
+      },
+      "output_dir": "checkpoints\\literatura\\NPO\\batches_1\\step_1"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "domain": "literatura",
+  "algorithm": "GA",
+  "n_batches": 1,
+  "history": [
+    {
+      "step": 1,
+      "metrics": {
+        "forget_rouge": {
+          "rouge1": 0.0,
+          "rougeL": 0.0
+        },
+        "fluency_perplexity": 7.155063152514283e+44
+      },
+      "output_dir": "checkpoints\\literatura\\GA\\batches_1\\step_1"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "domain": "literatura",
+  "algorithm": "NPO",
+  "n_batches": 3,
+  "history": [
+    {
+      "step": 1,
+      "metrics": {
+        "forget_rouge": {
+          "rouge1": 0.23807969969570966,
+          "rougeL": 0.18645804962212792
+        },
+        "fluency_perplexity": 18.21130001984529
+      },
+      "output_dir": "checkpoints\\literatura\\NPO\\batches_3\\step_1"
+    },
+    {
+      "step": 2,
+      "metrics": {
+        "forget_rouge": {
+          "rouge1": 0.2185357903726271,
+          "rougeL": 0.14255977502741116
+        },
+        "fluency_perplexity": 22.00257331199507
+      },
+      "output_dir": "checkpoints\\literatura\\NPO\\batches_3\\step_2"
+    },
+    {
+      "step": 3,
+      "metrics": {
+        "forget_rouge": {
+          "rouge1": 0.22025924303183136,
+          "rougeL": 0.14391360434380424
+        },
+        "fluency_perplexity": 40.879067636674
+      },
+      "output_dir": "checkpoints\\literatura\\NPO\\batches_3\\step_3"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "domain": "literatura",
+  "algorithm": "WGA",
+  "n_batches": 3,
+  "history": [
+    {
+      "step": 1,
+      "metrics": {
+        "forget_rouge": {
+          "rouge1": 0.05312119490916959,
+          "rougeL": 0.03596210400007868
+        },
+        "fluency_perplexity": 27.764914895517304
+      },
+      "output_dir": "checkpoints\\literatura\\WGA\\batches_3\\step_1"
+    },
+    {
+      "step": 2,
+      "metrics": {
+        "forget_rouge": {
+          "rouge1": 0.0,
+          "rougeL": 0.0
+        },
+        "fluency_perplexity": 1054.310261671896
+      },
+      "output_dir": "checkpoints\\literatura\\WGA\\batches_3\\step_2"
+    },
+    {
+      "step": 3,
+      "metrics": {
+        "forget_rouge": {
+          "rouge1": 0.0,
+          "rougeL": 0.0
+        },
+        "fluency_perplexity": 1329.7762830582533
+      },
+      "output_dir": "checkpoints\\literatura\\WGA\\batches_3\\step_3"
+    }
+  ]
+}

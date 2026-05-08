@@ -1,0 +1,18 @@
+{
+  "domain": "literatura",
+  "algorithm": "SimNPO",
+  "n_batches": 1,
+  "history": [
+    {
+      "step": 1,
+      "metrics": {
+        "forget_rouge": {
+          "rouge1": 0.23383809142929057,
+          "rougeL": 0.1734267759466663
+        },
+        "fluency_perplexity": 18.186339422378385
+      },
+      "output_dir": "checkpoints\\literatura\\SimNPO\\batches_1\\step_1"
+    }
+  ]
+}

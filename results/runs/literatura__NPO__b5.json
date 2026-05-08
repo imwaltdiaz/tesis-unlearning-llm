@@ -1,0 +1,62 @@
+{
+  "domain": "literatura",
+  "algorithm": "NPO",
+  "n_batches": 5,
+  "history": [
+    {
+      "step": 1,
+      "metrics": {
+        "forget_rouge": {
+          "rouge1": 0.2550000513630778,
+          "rougeL": 0.19513059632463367
+        },
+        "fluency_perplexity": 18.077724470481563
+      },
+      "output_dir": "checkpoints\\literatura\\NPO\\batches_5\\step_1"
+    },
+    {
+      "step": 2,
+      "metrics": {
+        "forget_rouge": {
+          "rouge1": 0.1953247550713622,
+          "rougeL": 0.1644658388842397
+        },
+        "fluency_perplexity": 14.228387904095845
+      },
+      "output_dir": "checkpoints\\literatura\\NPO\\batches_5\\step_2"
+    },
+    {
+      "step": 3,
+      "metrics": {
+        "forget_rouge": {
+          "rouge1": 0.21261728041759143,
+          "rougeL": 0.142037887134879
+        },
+        "fluency_perplexity": 25.13615267893737
+      },
+      "output_dir": "checkpoints\\literatura\\NPO\\batches_5\\step_3"
+    },
+    {
+      "step": 4,
+      "metrics": {
+        "forget_rouge": {
+          "rouge1": 0.15996827896406757,
+          "rougeL": 0.1122620602757682
+        },
+        "fluency_perplexity": 50.506766381764876
+      },
+      "output_dir": "checkpoints\\literatura\\NPO\\batches_5\\step_4"
+    },
+    {
+      "step": 5,
+      "metrics": {
+        "forget_rouge": {
+          "rouge1": 0.1824147890624785,
+          "rougeL": 0.1517737152933843
+        },
+        "fluency_perplexity": 48.479843990645826
+      },
+      "output_dir": "checkpoints\\literatura\\NPO\\batches_5\\step_5"
+    }
+  ]
+}

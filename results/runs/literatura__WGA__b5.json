@@ -1,0 +1,62 @@
+{
+  "domain": "literatura",
+  "algorithm": "WGA",
+  "n_batches": 5,
+  "history": [
+    {
+      "step": 1,
+      "metrics": {
+        "forget_rouge": {
+          "rouge1": 0.10786037587378361,
+          "rougeL": 0.08001573514102625
+        },
+        "fluency_perplexity": 19.882290464870778
+      },
+      "output_dir": "checkpoints\\literatura\\WGA\\batches_5\\step_1"
+    },
+    {
+      "step": 2,
+      "metrics": {
+        "forget_rouge": {
+          "rouge1": 0.05090851136106157,
+          "rougeL": 0.03996985651996769
+        },
+        "fluency_perplexity": 116.72640893745123
+      },
+      "output_dir": "checkpoints\\literatura\\WGA\\batches_5\\step_2"
+    },
+    {
+      "step": 3,
+      "metrics": {
+        "forget_rouge": {
+          "rouge1": 0.002439024390243902,
+          "rougeL": 0.002439024390243902
+        },
+        "fluency_perplexity": 986.0775978540223
+      },
+      "output_dir": "checkpoints\\literatura\\WGA\\batches_5\\step_3"
+    },
+    {
+      "step": 4,
+      "metrics": {
+        "forget_rouge": {
+          "rouge1": 0.02828282828282828,
+          "rougeL": 0.020202020202020204
+        },
+        "fluency_perplexity": 5395.02358980446
+      },
+      "output_dir": "checkpoints\\literatura\\WGA\\batches_5\\step_4"
+    },
+    {
+      "step": 5,
+      "metrics": {
+        "forget_rouge": {
+          "rouge1": 0.08987962706666267,
+          "rougeL": 0.08417592336295897
+        },
+        "fluency_perplexity": 123.49952459097686
+      },
+      "output_dir": "checkpoints\\literatura\\WGA\\batches_5\\step_5"
+    }
+  ]
+}

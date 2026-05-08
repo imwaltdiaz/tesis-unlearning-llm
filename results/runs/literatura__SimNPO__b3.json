@@ -1,0 +1,40 @@
+{
+  "domain": "literatura",
+  "algorithm": "SimNPO",
+  "n_batches": 3,
+  "history": [
+    {
+      "step": 1,
+      "metrics": {
+        "forget_rouge": {
+          "rouge1": 0.23055180120340432,
+          "rougeL": 0.17707731600519472
+        },
+        "fluency_perplexity": 17.929438530313117
+      },
+      "output_dir": "checkpoints\\literatura\\SimNPO\\batches_3\\step_1"
+    },
+    {
+      "step": 2,
+      "metrics": {
+        "forget_rouge": {
+          "rouge1": 0.22102939912899772,
+          "rougeL": 0.16150464715453375
+        },
+        "fluency_perplexity": 19.810073705446108
+      },
+      "output_dir": "checkpoints\\literatura\\SimNPO\\batches_3\\step_2"
+    },
+    {
+      "step": 3,
+      "metrics": {
+        "forget_rouge": {
+          "rouge1": 0.20651502399382143,
+          "rougeL": 0.14142093081586862
+        },
+        "fluency_perplexity": 36.78912968724002
+      },
+      "output_dir": "checkpoints\\literatura\\SimNPO\\batches_3\\step_3"
+    }
+  ]
+}

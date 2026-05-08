@@ -1,0 +1,40 @@
+{
+  "domain": "literatura",
+  "algorithm": "GA",
+  "n_batches": 3,
+  "history": [
+    {
+      "step": 1,
+      "metrics": {
+        "forget_rouge": {
+          "rouge1": 0.0,
+          "rougeL": 0.0
+        },
+        "fluency_perplexity": 2.5093955748879977e+35
+      },
+      "output_dir": "checkpoints\\literatura\\GA\\batches_3\\step_1"
+    },
+    {
+      "step": 2,
+      "metrics": {
+        "forget_rouge": {
+          "rouge1": 0.0,
+          "rougeL": 0.0
+        },
+        "fluency_perplexity": 1.595883623984853e+40
+      },
+      "output_dir": "checkpoints\\literatura\\GA\\batches_3\\step_2"
+    },
+    {
+      "step": 3,
+      "metrics": {
+        "forget_rouge": {
+          "rouge1": 0.0,
+          "rougeL": 0.0
+        },
+        "fluency_perplexity": 5.55738301451644e+40
+      },
+      "output_dir": "checkpoints\\literatura\\GA\\batches_3\\step_3"
+    }
+  ]
+}

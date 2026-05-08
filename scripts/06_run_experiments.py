@@ -33,7 +33,7 @@ def _result_path(domain: str, algorithm: str, n_batches: int) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     return out_dir / f"{domain}__{algorithm}__b{n_batches}.json"
 
-ALGORITHMS = ["GA", "NPO", "SimNPO", "SSU"]
+ALGORITHMS = ["GA", "WGA", "NPO", "SimNPO"]
 DOMAINS = ["literatura"]  # empieza solo con literatura, añade math e historia después
 N_BATCHES = [1, 3, 5]    # 1 = baseline global, 3 y 5 = secuencial
 

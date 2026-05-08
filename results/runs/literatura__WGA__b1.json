@@ -1,0 +1,18 @@
+{
+  "domain": "literatura",
+  "algorithm": "WGA",
+  "n_batches": 1,
+  "history": [
+    {
+      "step": 1,
+      "metrics": {
+        "forget_rouge": {
+          "rouge1": 0.08125529409017652,
+          "rougeL": 0.05268087073566008
+        },
+        "fluency_perplexity": 322.8556900585562
+      },
+      "output_dir": "checkpoints\\literatura\\WGA\\batches_1\\step_1"
+    }
+  ]
+}
