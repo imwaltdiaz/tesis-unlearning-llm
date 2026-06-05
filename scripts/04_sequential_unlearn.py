@@ -91,6 +91,7 @@ def sequential_unlearn_loop(*, M0_path: str, forget_books_batched, retain_data, 
     import json
     from pathlib import Path
     import importlib.util
+    import numpy as np
 
     ou_src = (Path(__file__).resolve().parents[1] / "open-unlearning" / "src").as_posix()
     if ou_src not in sys.path:
@@ -107,6 +108,7 @@ def sequential_unlearn_loop(*, M0_path: str, forget_books_batched, retain_data, 
     _ou_eval = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(_ou_eval)
     evaluate_full = _ou_eval.evaluate_full
+    compute_truth_ratio = _ou_eval.compute_truth_ratio
 
     set_seed(42)
 
@@ -125,6 +127,34 @@ def sequential_unlearn_loop(*, M0_path: str, forget_books_batched, retain_data, 
     retain_hf = _load_books_dataset(retain_data, processed_dir=processed_dir)
     run_dir = os.path.join(output_root, domain, algorithm, f"batches_{n_batches}")
     os.makedirs(run_dir, exist_ok=True)
+
+    # ------------------------------------------------------------------
+    # Pre-calcular Truth Ratios de referencia usando M0 (una sola vez).
+    # Estas se usarán en cada paso del KS-test (Forget Quality).
+    # ------------------------------------------------------------------
+    print("[Setup] Calculando Truth Ratios de referencia con M0...")
+    _ref_model, _ref_tokenizer = load_model(M0_path, torch_dtype=torch.float16)
+    _ref_device = "cuda" if torch.cuda.is_available() else "cpu"
+    _ref_model = _ref_model.to(_ref_device)
+    _ref_model.eval()
+
+    # Recopilar hasta 50 muestras del forget set para la referencia
+    _ref_forget_samples = []
+    for _batch in forget_books_batched:
+        _ref_forget_samples.extend([_batch[i] for i in range(min(20, len(_batch)))])
+        if len(_ref_forget_samples) >= 50:
+            break
+    _ref_forget_samples = _ref_forget_samples[:50]
+
+    ref_truth_ratios = compute_truth_ratio(
+        _ref_model, _ref_tokenizer, _ref_forget_samples, n_perturbations=3
+    )
+    print(f"[Setup] Referencia calculada: {len(ref_truth_ratios)} TRs de M0.")
+
+    del _ref_model, _ref_tokenizer
+    gc.collect()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
 
     history = []
     current_ckpt = M0_path
@@ -197,8 +227,18 @@ def sequential_unlearn_loop(*, M0_path: str, forget_books_batched, retain_data, 
 
         trainer.train()
 
-        eval_samples = [forget_hf[i] for i in range(min(10, len(forget_hf)))]
-        metrics = evaluate_full(trainer.model, tokenizer, eval_samples, domain=domain, step=step_idx)
+        # 20 muestras del forget set + 20 del retain set para la evaluación
+        n_eval = 20
+        forget_eval = [forget_hf[i] for i in range(min(n_eval, len(forget_hf)))]
+        retain_eval = [retain_hf[i] for i in range(min(n_eval, len(retain_hf)))]
+        metrics = evaluate_full(
+            trainer.model, tokenizer,
+            forget_samples=forget_eval,
+            retain_samples=retain_eval,
+            ref_truth_ratios=ref_truth_ratios,
+            domain=domain,
+            step=step_idx,
+        )
         step_record = {"step": step_idx, "metrics": metrics, "output_dir": step_dir}
         history.append(step_record)
         
@@ -212,6 +252,30 @@ def sequential_unlearn_loop(*, M0_path: str, forget_books_batched, retain_data, 
 
         with open(os.path.join(run_dir, "history.jsonl"), "a", encoding="utf-8") as f:
             f.write(json.dumps(step_record) + "\n")
+
+        # Actualizar pareto_metrics.json de forma incremental tras cada paso
+        pareto_path = os.path.join(run_dir, "pareto_metrics.json")
+        pareto_data = {
+            "domain": domain,
+            "algorithm": algorithm,
+            "n_batches": n_batches,
+            "M0_path": M0_path,
+            "steps": [
+                {
+                    "step": r["step"],
+                    "forget_quality": r["metrics"]["aggregate"]["forget_quality"],
+                    "model_utility": r["metrics"]["aggregate"]["model_utility"],
+                    "ppl_forget": r["metrics"]["efficacy"]["ppl_forget"],
+                    "ppl_retain": r["metrics"]["utility"]["ppl_retain"],
+                    "rouge1_forget": r["metrics"]["efficacy"]["rouge1_forget"],
+                    "rouge1_retain": r["metrics"]["utility"]["rouge1_retain"],
+                    "truth_ratio_forget": r["metrics"]["efficacy"]["truth_ratio_forget"],
+                }
+                for r in history
+            ],
+        }
+        with open(pareto_path, "w", encoding="utf-8") as f:
+            json.dump(pareto_data, f, indent=2)
 
         del trainer, model, merged, forget_ds, retain_ds, unlearn_ds
         if ref_model is not None:
