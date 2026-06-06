@@ -21,7 +21,18 @@ class FinetuneTrainer(Trainer):
         self.template_args = template_args
         if kwargs.get("eval_dataset") is None and evaluators:
             kwargs["eval_dataset"] = _EVAL_PLACEHOLDER
+            
+        # Intercept tokenizer and processing_class to support newer transformers versions
+        tokenizer = kwargs.pop("tokenizer", None)
+        processing_class = kwargs.pop("processing_class", None)
+        tokenizer_to_use = tokenizer or processing_class
+        if tokenizer_to_use is not None:
+            kwargs["processing_class"] = tokenizer_to_use
+            
         super().__init__(*args, **kwargs)
+        
+        if tokenizer_to_use is not None:
+            self.tokenizer = tokenizer_to_use
 
     def evaluate(
         self,

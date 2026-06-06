@@ -6,11 +6,49 @@
     {
       "step": 1,
       "metrics": {
-        "forget_rouge": {
-          "rouge1": 0.0,
-          "rougeL": 0.0
+        "step": 1,
+        "domain": "literatura",
+        "efficacy": {
+          "ppl_forget": 4.831950059356052e+44,
+          "rouge1_forget": 0.0,
+          "rougeL_forget": 0.0,
+          "truth_ratio_forget": 0.9999999998999997
         },
-        "fluency_perplexity": 7.155063152514283e+44
+        "utility": {
+          "ppl_retain": 9.451551925248091e+43,
+          "rouge1_retain": 0.0,
+          "rougeL_retain": 0.0
+        },
+        "aggregate": {
+          "forget_quality": 1.1316933501002751e-08,
+          "model_utility": 1e-06
+        },
+        "raw": {
+          "truth_ratios_forget": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "n_forget_eval": 20,
+          "n_retain_eval": 20
+        }
       },
       "output_dir": "checkpoints\\literatura\\GA\\batches_1\\step_1"
     }

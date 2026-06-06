@@ -1,7 +1,7 @@
 # scripts/03_train_base_model.py
-from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments
+from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import LoraConfig, get_peft_model
-from trl import SFTTrainer
+from trl import SFTTrainer, SFTConfig
 from datasets import load_dataset
 import torch
 import os
@@ -55,7 +55,7 @@ def train_base_model(forget_books, retain_books, output_dir, domain="literatura"
 
     dataset = dataset.map(format_text, remove_columns=dataset.column_names)
     
-    training_args = TrainingArguments(
+    training_args = SFTConfig(
         output_dir=output_dir,
         num_train_epochs=1,
         per_device_train_batch_size=16,
@@ -68,15 +68,15 @@ def train_base_model(forget_books, retain_books, output_dir, domain="literatura"
         logging_steps=10,
         save_strategy="epoch",
         report_to="none",
+        max_length=512,
+        dataset_text_field="text",
     )
     
     trainer = SFTTrainer(
         model=model,
         args=training_args,
         train_dataset=dataset,
-        tokenizer=tokenizer,
-        max_seq_length=512,
-        dataset_text_field="text",
+        processing_class=tokenizer,
     )
     
     trainer.train()

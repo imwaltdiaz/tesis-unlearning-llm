@@ -4,7 +4,7 @@ from peft import LoraConfig, get_peft_model
 import torch
 import os
 
-def load_model(model_path: str, torch_dtype=torch.float16): # fp16 para tu RTX 6000
+def load_model(model_path: str, torch_dtype=torch.bfloat16): # bf16 para tu RTX 6000 Ada (más estable)
     """Carga modelo/tokenizer desde un checkpoint HF estándar."""
     tokenizer = AutoTokenizer.from_pretrained(model_path)
     if tokenizer.pad_token_id is None:
@@ -132,8 +132,8 @@ def sequential_unlearn_loop(*, M0_path: str, forget_books_batched, retain_data, 
     # Pre-calcular Truth Ratios de referencia usando M0 (una sola vez).
     # Estas se usarán en cada paso del KS-test (Forget Quality).
     # ------------------------------------------------------------------
-    print("[Setup] Calculando Truth Ratios de referencia con M0...")
-    _ref_model, _ref_tokenizer = load_model(M0_path, torch_dtype=torch.float16)
+    print("[Setup] Calculando Truth Ratios de referencia con modelo preentrenado (Llama-3.2-1B-Instruct)...")
+    _ref_model, _ref_tokenizer = load_model("meta-llama/Llama-3.2-1B-Instruct", torch_dtype=torch.bfloat16)
     _ref_device = "cuda" if torch.cuda.is_available() else "cpu"
     _ref_model = _ref_model.to(_ref_device)
     _ref_model.eval()
@@ -178,7 +178,7 @@ def sequential_unlearn_loop(*, M0_path: str, forget_books_batched, retain_data, 
                     history.append(json.load(f))
             continue
 
-        model, tokenizer = load_model(current_ckpt, torch_dtype=torch.float16)
+        model, tokenizer = load_model(current_ckpt, torch_dtype=torch.bfloat16)
         model.config.use_cache = False
 
         lora_config = LoraConfig(
@@ -192,18 +192,29 @@ def sequential_unlearn_loop(*, M0_path: str, forget_books_batched, retain_data, 
         unlearn_ds = ForgetRetainDataset(forget=forget_ds, retain=retain_ds, anchor="forget")
         collator = DataCollatorForSupervisedDataset(tokenizer=tokenizer)
 
+        # Ajustamos el learning rate para evitar colapso numérico.
+        # Unlearning necesita tasas de aprendizaje mucho menores (1e-5 o 5e-6) que SFT.
+        lr_map = {
+            "GA": 1e-5,
+            "WGA": 1e-5,
+            "NPO": 1e-5,
+            "SimNPO": 1e-5,
+        }
+        lr = lr_map.get(algorithm, 1e-5)
+
         trainer_cfg = {
             "handler": algo_map[algorithm],
             "args": {
                 "output_dir": step_dir,
                 "per_device_train_batch_size": per_device_bs,
                 "gradient_accumulation_steps": grad_accum,
-                "learning_rate": 2e-4,
+                "learning_rate": lr,
+                "max_grad_norm": 1.0,
                 "num_train_epochs": 1,
                 "logging_steps": 10,
                 "save_strategy": "no",
                 "report_to": "none",
-                "fp16": True,
+                "bf16": True,
                 "optim": "adamw_torch_fused",
                 "remove_unused_columns": False,
                 "dataloader_num_workers": num_workers,

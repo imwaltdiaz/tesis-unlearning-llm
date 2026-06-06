@@ -15,7 +15,7 @@ La experimentación fue realizada en un laboratorio de alto rendimiento con las 
 
 1. **Clonar el repositorio:**
    ```bash
-   git clone [https://github.com/tu-usuario/tesis-unlearning-llm.git](https://github.com/tu-usuario/tesis-unlearning-llm.git)
+   git clone [https://github.com/imwaltdiaz/tesis-unlearning-llm.git](https://github.com/imwaltdiaz/tesis-unlearning-llm.git)
    cd tesis-unlearning-llm
 
     ```
@@ -25,8 +25,29 @@ La experimentación fue realizada en un laboratorio de alto rendimiento con las 
     conda create -n tesis_unlearning python=3.11
     conda activate tesis_unlearning
     pip install -r requirements.txt
-
     ```
+
+3. **Autenticación en Hugging Face (Requerido para Llama-3.2):**
+    Como Llama-3.2-1B-Instruct es un modelo protegido (*gated*), necesitas configurar tu token de Hugging Face. Genera un token en [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens) y corre:
+    ```bash
+    python -c "from huggingface_hub import login; login('TU_TOKEN_DE_HF')"
+    ```
+
+4. **Nota Importante para Usuarios de Windows (UTF-8):**
+    Para evitar el error `UnicodeDecodeError` provocado por las plantillas de `trl` al decodificarse en codificación no-UTF8 por defecto en Windows (como `cp1252`), debes activar el modo UTF-8 de Python antes de correr cualquier script:
+    * **PowerShell:**
+        ```powershell
+        $env:PYTHONUTF8=1
+        ```
+    * **CMD:**
+        ```cmd
+        set PYTHONUTF8=1
+        ```
+    * **Alternativa de ejecución directa:**
+        ```bash
+        python -X utf8 scripts/03_train_base_model.py
+        ```
+
 
 
 
