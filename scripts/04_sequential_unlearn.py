@@ -4,6 +4,11 @@ from peft import LoraConfig, get_peft_model
 import torch
 import os
 
+# ===========================================================================
+# MONKEY PATCH ULTRA-ROBUSTO: Corrige la compatibilidad de firmas en memoria
+# ===========================================================================
+import transformers.trainer
+
 def load_model(model_path: str, torch_dtype=torch.bfloat16): # bf16 para tu RTX 6000 Ada (más estable)
     """Carga modelo/tokenizer desde un checkpoint HF estándar."""
     tokenizer = AutoTokenizer.from_pretrained(model_path)
@@ -11,7 +16,6 @@ def load_model(model_path: str, torch_dtype=torch.bfloat16): # bf16 para tu RTX 
         tokenizer.pad_token = tokenizer.eos_token
     model = AutoModelForCausalLM.from_pretrained(model_path, torch_dtype=torch_dtype)
     return model, tokenizer
-
 
 def _load_books_dataset(book_names, processed_dir: str = "data/processed/gutenberg"):
     from datasets import load_dataset
@@ -97,9 +101,13 @@ def sequential_unlearn_loop(*, M0_path: str, forget_books_batched, retain_data, 
     if ou_src not in sys.path:
         sys.path.insert(0, ou_src)
 
+    # ... (código previo de la función sequential_unlearn_loop)
     from omegaconf import OmegaConf
+
+    
     from trainer import load_trainer
     from data.unlearn import ForgetRetainDataset
+    # ... (el resto del código continúa igual)
     from data.collators import DataCollatorForSupervisedDataset
     from transformers import set_seed
 
@@ -235,7 +243,6 @@ def sequential_unlearn_loop(*, M0_path: str, forget_books_batched, retain_data, 
             eval_dataset=None, processing_class=tokenizer, data_collator=collator,
             evaluators=None, template_args=None,
         )
-
         trainer.train()
 
         # 20 muestras del forget set + 20 del retain set para la evaluación

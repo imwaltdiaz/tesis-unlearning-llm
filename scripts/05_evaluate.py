@@ -17,8 +17,8 @@ import numpy as np
 import torch
 from rouge_score import rouge_scorer
 from scipy.stats import ks_2samp, hmean
-
-
+import evaluate
+from bert_score import score as bert_score_backend
 # ---------------------------------------------------------------------------
 # Helpers internos
 # ---------------------------------------------------------------------------
@@ -290,8 +290,71 @@ def compute_model_utility(retain_metrics: dict) -> float:
         mu = float(np.mean(values))  # fallback a media aritmética
 
     return mu
+def compute_semantic_metrics(model, tokenizer, samples: list, max_new_tokens: int = 50) -> dict:
+    """
+    Calcula BERTScore, METEOR y BLEU de forma local y nativa para evitar bugs de evaluate/huggingface_hub.
+    """
+    import numpy as np
+    import torch
+    
+    model.eval()
+    device = _infer_model_device(model)
 
+    predictions = []
+    references = []
 
+    for s in samples:
+        prompt = s.get("input", "")
+        reference = s.get("output", "")
+        if not prompt or not reference:
+            continue
+
+        inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=400).to(device)
+        with torch.no_grad():
+            out = model.generate(
+                **inputs,
+                max_new_tokens=max_new_tokens,
+                do_sample=False,
+                pad_token_id=tokenizer.eos_token_id,
+            )
+        generated = tokenizer.decode(
+            out[0][inputs["input_ids"].shape[1]:], skip_special_tokens=True
+        )
+        predictions.append(generated.strip() if generated.strip() else " ")
+        references.append(reference.strip())
+
+    if not predictions:
+        return {"bertscore": 0.0, "meteor": 0.0, "bleu": 0.0}
+
+    # 1. BERTScore Nativo Local
+    
+    # 'distilbert-base-uncased' es rápido y liviano para CPU/GPU
+    P, R, F1 = bert_score_backend(predictions, references, lang="en", model_type="distilbert-base-uncased", verbose=False)
+    avg_bertscore = float(F1.mean().item())
+
+    # 2. BLEU Nativo Local via NLTK
+    from nltk.translate.bleu_score import corpus_bleu, SmoothingFunction
+    ref_bleu = [[r.split()] for r in references]
+    pred_bleu = [p.split() for p in predictions]
+    avg_bleu = float(corpus_bleu(ref_bleu, pred_bleu, smoothing_function=SmoothingFunction().method1))
+
+    # 3. METEOR Nativo Local via NLTK
+    from nltk.translate.meteor_score import meteor_score
+    import nltk
+    try:
+        nltk.data.find('corpora/wordnet')
+    except LookupError:
+        nltk.download('wordnet', quiet=True)
+        nltk.download('omw-1.4', quiet=True)
+        
+    meteor_scores = [meteor_score([r.split()], p.split()) for r, p in zip(references, predictions)]
+    avg_meteor = float(np.mean(meteor_scores)) if meteor_scores else 0.0
+
+    return {
+        "bertscore": avg_bertscore,
+        "meteor": avg_meteor,
+        "bleu": avg_bleu
+    }
 # ---------------------------------------------------------------------------
 # Orquestador principal
 # ---------------------------------------------------------------------------
@@ -356,6 +419,9 @@ def evaluate_full(model, tokenizer,
     ppl_forget = compute_ppl(model, tokenizer, forget_samples)
     rouge_forget = compute_rouge(model, tokenizer, forget_samples)
 
+    # NUEVO: Calcular métricas semánticas sobre el forget set
+    semantic_forget = compute_semantic_metrics(model, tokenizer, forget_samples)    
+
     print("[2/4] Truth Ratio sobre Forget Set...")
     model_trs = compute_truth_ratio(model, tokenizer, forget_samples)
     # Agregado: closer_to_1 = mejor olvido (mínimo entre TR y 1/TR)
@@ -399,6 +465,11 @@ def evaluate_full(model, tokenizer,
     print(f"  ROUGE-1_forget: {rouge_forget['rouge1']:>10.4f}  (↓ mejor olvido)")
     print(f"  ROUGE-L_forget: {rouge_forget['rougeL']:>10.4f}  (↓ mejor olvido)")
     print(f"  Truth Ratio:    {tr_agg:>10.4f}  (↑ mejor olvido, max=0.5)")
+    # -------- AÑADE ESTAS 3 LÍNEAS AQUÍ --------
+    print(f"  BERTScore_forget: {semantic_forget['bertscore']:>8.4f}  (↓ mejor olvido)")
+    print(f"  METEOR_forget:    {semantic_forget['meteor']:>8.4f}  (↓ mejor olvido)")
+    print(f"  BLEU_forget:      {semantic_forget['bleu']:>8.4f}  (↓ mejor olvido)")
+    # -------------------------------------------
     print(f"  ── Utilidad ──────────────────────────────")
     print(f"  PPL_retain:     {ppl_retain:>10.2f}  (↓ mejor utilidad)")
     print(f"  ROUGE-1_retain: {rouge_retain['rouge1']:>10.4f}  (↑ mejor utilidad)")
@@ -410,6 +481,7 @@ def evaluate_full(model, tokenizer,
     # ------------------------------------------------------------------
     # Diccionario de retorno estructurado
     # ------------------------------------------------------------------
+    # Al armar el diccionario de retorno final, agrega los campos correspondientes:
     return {
         "step": step,
         "domain": domain,
@@ -418,6 +490,10 @@ def evaluate_full(model, tokenizer,
             "rouge1_forget": float(rouge_forget["rouge1"]),
             "rougeL_forget": float(rouge_forget["rougeL"]),
             "truth_ratio_forget": float(tr_agg),
+            # NUEVOS CAMPOS:
+            "bertscore_forget": semantic_forget["bertscore"],
+            "meteor_forget": semantic_forget["meteor"],
+            "bleu_forget": semantic_forget["bleu"],
         },
         "utility": {
             "ppl_retain": float(ppl_retain),

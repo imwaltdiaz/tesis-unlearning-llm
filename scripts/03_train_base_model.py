@@ -68,7 +68,7 @@ def train_base_model(forget_books, retain_books, output_dir, domain="literatura"
         logging_steps=10,
         save_strategy="epoch",
         report_to="none",
-        max_length=512,
+        max_seq_length=512,
         dataset_text_field="text",
     )
     
@@ -76,7 +76,7 @@ def train_base_model(forget_books, retain_books, output_dir, domain="literatura"
         model=model,
         args=training_args,
         train_dataset=dataset,
-        processing_class=tokenizer,
+        tokenizer=tokenizer,
     )
     
     trainer.train()

@@ -298,8 +298,77 @@ def plot_pareto_frontier(domain: str = "literatura", n_batches_list: list = None
         plt.savefig(out, dpi=200, bbox_inches="tight")
         plt.close(fig)
         print(f"[OK] Frontera de Pareto ({mode}) -> {out}")
+# ---------------------------------------------------------------------------
+# Gráfica 4: La Paradoja Léxico-Semántica (ROUGE vs BERTScore)
+# ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# Gráfica 4: La Paradoja Léxico-Semántica (ROUGE vs BERTScore)
+# ---------------------------------------------------------------------------
+def plot_semantic_paradox(domain: str = "literatura", n_batches: int = 5,
+                          results_dir: Path = None, output_dir: Path = None):
+    """
+    Contrasta la caída de métricas léxicas (ROUGE) vs la resistencia 
+    de las métricas semánticas (BERTScore) para evidenciar retención latente.
+    """
+    if results_dir is None:
+        results_dir = Path(__file__).resolve().parents[1] / "results" / "runs"
+    if output_dir is None:
+        output_dir = Path(__file__).resolve().parents[1] / "results" / "figures"
+    
+    fig, ax = plt.subplots(figsize=(10, 6))
+    
+    # Usaremos solo SimNPO por ser el algoritmo más estable/óptimo
+    algo = "SimNPO"
+    fpath = _result_path(results_dir, domain, algo, n_batches)
+    
+    if not fpath.exists():
+        print(f"[WARN] No hay datos de {algo} para la paradoja semántica.")
+        return
 
+    history = _load_history(fpath)
+    steps, rouge, bertscore = [], [], []
+    
+    for rec in history:
+        steps.append(rec["step"])
+        eff = rec.get("metrics", {}).get("efficacy", {})
+        rouge.append(eff.get("rouge1_forget", float("nan")))
+        # Intentamos extraer bertscore, si existe
+        bertscore.append(eff.get("bertscore_forget", eff.get("bertscore", float("nan"))))
 
+    if np.isnan(bertscore).all():
+        print("[WARN] No se encontró BERTScore en los logs. Asegúrate de que el JSON lo contenga.")
+        return
+
+    # Trazar ROUGE-1 (Caída pronunciada)
+    ax.plot(steps, rouge, color="#e74c3c", marker="o", linestyle="-", linewidth=3, 
+            markersize=8, label="ROUGE-1 (Memoria Léxica Exacta)")
+    
+    # Trazar BERTScore (Resistencia semántica)
+    ax.plot(steps, bertscore, color="#2980b9", marker="D", linestyle="--", linewidth=3, 
+            markersize=8, label="BERTScore (Memoria Semántica Latente)")
+
+    # Anotaciones
+    for x, y in zip(steps, rouge):
+        ax.annotate(f"{y:.2f}", (x, y), textcoords="offset points", xytext=(0,-15), ha='center', fontsize=9, color="#e74c3c")
+    for x, y in zip(steps, bertscore):
+        ax.annotate(f"{y:.2f}", (x, y), textcoords="offset points", xytext=(0,10), ha='center', fontsize=9, color="#2980b9")
+
+    ax.set_title(f"Paradoja del Desaprendizaje: Léxico vs Semántico\nDominio: {domain} | Algoritmo: {algo} | Lotes: {n_batches}", fontsize=13, fontweight="bold")
+    ax.set_xlabel("Paso Iterativo (Lotes procesados)", fontsize=11)
+    ax.set_ylabel("Puntuación de Similitud (0 a 1)", fontsize=11)
+    ax.set_xticks(range(1, n_batches + 1))
+    ax.set_ylim(0, 1.0)
+    ax.legend(loc="center right", fontsize=10)
+    ax.grid(True, linestyle="--", alpha=0.5)
+
+    # Sombreado de la brecha (La "Retención Latente")
+    ax.fill_between(steps, rouge, bertscore, color="purple", alpha=0.1, label="Brecha de Retención Latente")
+
+    plt.tight_layout()
+    out = output_dir / f"{domain}_semantic_paradox_{algo}_b{n_batches}.png"
+    plt.savefig(out, dpi=200, bbox_inches="tight")
+    plt.close(fig)
+    print(f"[OK] Gráfica de paradoja semántica -> {out}")
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -363,6 +432,7 @@ def main():
         # Frontera de Pareto exclusiva para b=5
         try:
             plot_pareto_frontier(domain=domain, n_batches_list=[5])
+            plot_semantic_paradox(domain=domain, n_batches=5) # <--- AÑADE ESTO AQUÍ
         except Exception as e:
             print(f"[WARN] plot_pareto_frontier({domain}, b=5): {e}")
 
